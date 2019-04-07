@@ -1,18 +1,22 @@
 import sys
 import os
+import random
 import discord
 import asyncio
 import aiohttp
 from discord.ext import commands
 import loadconfig
 
-class admin():
+class admin(commands.Cog):
     '''Befehle für den Bot Admin'''
 
     def __init__(self, bot):
         self.bot = bot
 
-    async def __local_check(self, ctx):
+    async def cog_command_error(self, ctx, error):
+        print('Error in {0.command.qualified_name}: {1}'.format(ctx, error))
+
+    async def cog_check(self, ctx):
         return await ctx.bot.is_owner(ctx.author)
 
     @commands.command(aliases=['quit'], hidden=True)
@@ -169,12 +173,27 @@ class admin():
         msg = f'Invite für **{guild.name}** ({guild.id})\n{invite.url}'
         await ctx.author.send(msg)
 
+    @commands.command(hidden=True, aliases=['wichteln'])
+    async def wichtel(self, ctx, *participants: str):
+        '''Nützlich für das Community Wichtel Event 2018 (BOT OWNER ONLY)'''
+        participantsList = list(participants)
+        random.shuffle(participantsList)
+        msg = 'Wichtelpartner stehen fest:\n```'
+        for i, val in enumerate(participantsList):
+            if i == len(participantsList) - 1:
+                msg += f'{val.ljust(10)} ===> {participantsList[0]}\n'
+            else:
+                msg += f'{val.ljust(10)} ===> {participantsList[i + 1]}\n'
+
+        msg += '```'
+        await ctx.send(msg)
+
     @commands.command(hidden=True)
     @commands.cooldown(1, 10, commands.cooldowns.BucketType.channel)
     async def test(self, ctx):
         '''Test Test Test'''
-        ctx.send('Test')
-        raise discord.GatewayNotFound()
+        await ctx.send('Test')
+        await self.bot.AppInfo.owner.send('Test')
 
 def setup(bot):
     bot.add_cog(admin(bot))

@@ -16,7 +16,7 @@ import discord
 from discord.ext import commands
 import loadconfig
 
-__version__ = '1.2.4'
+__version__ = '1.2.7'
 
 logger = logging.getLogger('discord')
 #logger.setLevel(logging.DEBUG)
@@ -66,6 +66,8 @@ async def on_ready():
     print(f'Dev Mode: {bot.dev}')
     print(f'Discord Version: {discord.__version__}')
     print(f'Bot Version: {__version__}')
+    bot.AppInfo = await bot.application_info()
+    print(f'Owner: {bot.AppInfo.owner}')
     print('------')
     for cog in loadconfig.__cogs__:
         try:
@@ -202,7 +204,7 @@ async def shutdown_backup(ctx):
     '''Fallback if mod cog couldn't load'''
     if await ctx.bot.is_owner(ctx.author):
         await ctx.send('**:ok:** Bye!')
-        bot.logout()
+        await bot.logout()
         sys.exit(0)
     else:
         await ctx.send('**:no_entry:** Du bist nicht mein Bot Besitzer!')
